@@ -30,4 +30,4 @@ USER appuser
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
