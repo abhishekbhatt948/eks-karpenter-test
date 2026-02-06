@@ -14,7 +14,7 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-  ECR_REPOSITORY: demo-nodejs-app
+  ECR_REPOSITORY: demo-app
 
 # -------------------------------------------------
 # JOB 1: Terraform (VPC + ECR + EKS + Karpenter)
