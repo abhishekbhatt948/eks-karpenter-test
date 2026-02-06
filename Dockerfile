@@ -7,10 +7,10 @@ WORKDIR /app
 COPY app/package*.json ./
 
 # Install only production dependencies
-RUN npm install
+RUN npm install 
 
-# Copy application source
-COPY . .
+# Copy app source (not repo root)
+COPY app/. .
 
 # ---------- Stage 2: Runtime image ----------
 FROM node:18-alpine
