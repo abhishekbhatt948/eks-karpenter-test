@@ -4,7 +4,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy only dependency files first (layer caching)
-COPY package*.json ./
+COPY app/package*.json ./
 
 # Install only production dependencies
 RUN npm install
