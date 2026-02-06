@@ -3,7 +3,7 @@ name: CI-CD-EKS-Karpenter-Demo
 on:
   push:
     branches:
-      - main
+      - master
 
 # -------------------------------------------------
 # Global environment variables
@@ -20,6 +20,35 @@ env:
 # JOB 1: Terraform (VPC + ECR + EKS + Karpenter)
 # -------------------------------------------------
 jobs:
+  build-and-push:
+    name: Build & Push Docker Image
+    # needs: terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            ./app
+
+      - name: Push Docker image
+        run: |
+          docker push \
+            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
   # terraform:
   #   name: Terraform Apply (Infra)
   #   runs-on: ubuntu-latest
@@ -55,36 +84,7 @@ jobs:
 # -------------------------------------------------
 # JOB 2: Build & Push Docker Image to ECR
 # -------------------------------------------------
-  job:
-  build-and-push:
-    name: Build & Push Docker Image
-    # needs: terraform
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            ./app
-
-      - name: Push Docker image
-        run: |
-          docker push \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  
 
 # -------------------------------------------------
 # JOB 3: Deploy App + HPA to EKS
